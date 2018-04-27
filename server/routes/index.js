@@ -86,7 +86,7 @@ router.post('/api/v1/address', (req, res, next) => {
 
       const query  = client.query( 'INSERT INTO ADDRESS( USER_NAME, STREET, STREE2, COUNTRY, CITY, STATE, PIN_CODE, DAILY_PKG_LMIT, CRCT_TIME, MODFY_TIME) ' +
                         'values($1, $2, $3, $4, $5, $6, $7, 01, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
-         [data.userName, data.street, data.street2, data.country, data.city, data.state, data.pinCode]);
+         [data.username, data.street, data.streetTwo, data.country, data.city, data.state, data.pinCode]);
       query.on('error', function(err) {
           console.log('Query error: ' + err);
           return res.status(500).json({success: false, error: err});
@@ -136,7 +136,7 @@ router.post('/api/v1/signup', (req, res, next) => {
 
       const query  = client.query( 'INSERT INTO ACCOUNT( USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PHONE, ACCOUNT, PASSWORD, ISACTIVE, CRCT_TIME, MODFY_TIME) ' +
                         'values($1, $2, $3, $4, $5, $6, $7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
-         [data.userName, data.firstName, data.lastName, data.email, data.phone, data.account, data.password]);
+         [data.username, data.firstName, data.lastName, data.email, data.phone, data.account, data.password]);
       
       query.on('error', function(err) {
           console.log('Query error: ' + err);
