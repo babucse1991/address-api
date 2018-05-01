@@ -98,9 +98,21 @@ router.post('/api/v1/address', (req, res, next) => {
     });
 });
 
-router.get('/api/v1/address', (req, res, next) => {
+router.post('/api/v1/address-search', (req, res, next) => {
   const results = [];
-
+  const data = req.body;
+  var sql =  'SELECT adr.* FROM ADDRESS adr '+
+  'INNER JOIN ACCOUNT act ON adr.USER_NAME = act.USER_NAME WHERE ';
+  
+  if ( data.firstName != null && data.firstName != '' ) {
+    sql =  sql + 'FIRST_NAME = \'' + data.firstName + '\' AND ' ;
+  }
+  if ( data.lastName != null && data.lastName != '' ) {
+    sql = sql +  'LAST_NAME = \'' + data.lastName + '\'  AND ' ;
+  }
+  sql = sql.substr(0, (sql.length - 4));
+  sql = sql + 'ORDER BY adr.MODFY_TIME ASC;'
+console.log(sql);
   client.connect( function (err, client, done) {
 
     if(err) {
@@ -108,8 +120,7 @@ router.get('/api/v1/address', (req, res, next) => {
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
-    
-    const query = client.query('SELECT * FROM ADDRESS ORDER BY MODFY_TIME ASC;');
+    const query = client.query(sql);
     
     query.on('row', (row) => {
       results.push(row);
