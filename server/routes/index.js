@@ -98,6 +98,33 @@ router.post('/api/v1/address', (req, res, next) => {
     });
 });
 
+
+router.put('/api/v1/address', (req, res, next) => {
+  const results = [];
+  const data = req.body;
+
+    client.connect(function (err, client, done) {
+
+      if(err) {
+        done();
+        console.log(err);
+        return res.status(500).json({success: false, data: err});
+      }
+
+      const query  = client.query( 'UPDATE ADDRESS SET STREET = $1, STREE2 = $2, COUNTRY = $3, CITY = $4, STATE = $5, PIN_CODE = $6, MODFY_TIME = CURRENT_TIMESTAMP ' +
+                        'WHERE ADDR_ID = $7 ',
+         [data.street, data.stree2, data.country, data.city, data.state, data.pin_code, data.addr_id]);
+      query.on('error', function(err) {
+          console.log('Query error: ' + err);
+          return res.status(500).json({success: false, error: err});
+      });
+      query.on('end', () => {
+        return res.status(200).json({success: true, data: 'success'});
+      });
+      
+    });
+});
+
 router.post('/api/v1/address-search', (req, res, next) => {
   const results = [];
   const data = req.body;
@@ -105,10 +132,10 @@ router.post('/api/v1/address-search', (req, res, next) => {
   'INNER JOIN ACCOUNT act ON adr.USER_NAME = act.USER_NAME WHERE ';
   
   if ( data.firstName != null && data.firstName != '' ) {
-    sql =  sql + 'FIRST_NAME = \'' + data.firstName + '\' AND ' ;
+    sql =  sql + 'LOWER(FIRST_NAME) = LOWER(\'' + data.firstName + '\') AND ' ;
   }
   if ( data.lastName != null && data.lastName != '' ) {
-    sql = sql +  'LAST_NAME = \'' + data.lastName + '\'  AND ' ;
+    sql = sql +  'LOWER(LAST_NAME) = LOWER(\'' + data.lastName + '\')  AND ' ;
   }
   sql = sql.substr(0, (sql.length - 4));
   sql = sql + 'ORDER BY adr.MODFY_TIME ASC;'
