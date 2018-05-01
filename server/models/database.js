@@ -2,15 +2,15 @@ const pg = require('pg');
 const connectionString = process.env.DATABASE_URL || 'postgres://msfrouexbqptiu:4ca612df8639d275cdc747154016be5d155b24972830ea0e2a8706c2c87c82bb@ec2-54-204-21-226.compute-1.amazonaws.com:5432/d1hnmf8ckni5ff';
 
 const client = new pg.Client({
-    user: "postgres",
-    password: "password",
-    database: "postgres",
+    user: "bbdev",
+    password: "9MM!zJ8oKSraOel",
+    database: "addressinfo",
     port: 5432,
-    host: "localhost",
+    host: 'general.cironm3vqnjr.us-east-1.rds.amazonaws.com',
     ssl: false
 });
 
-//const client = new pg.Client(connectionString);
+// const client = new pg.Client(connectionString);
 // client.connect();
 // const query = client.query(
 //   'CREATE TABLE items(id SERIAL PRIMARY KEY, text VARCHAR(40) not null, complete BOOLEAN)');
