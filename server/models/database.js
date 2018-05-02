@@ -1,12 +1,12 @@
 const pg = require('pg');
-const connectionString = process.env.DATABASE_URL || 'postgres://msfrouexbqptiu:4ca612df8639d275cdc747154016be5d155b24972830ea0e2a8706c2c87c82bb@ec2-54-204-21-226.compute-1.amazonaws.com:5432/d1hnmf8ckni5ff';
+const proConst = require('../constants');
 
 const client = new pg.Client({
-    user: "bbdev",
-    password: "9MM!zJ8oKSraOel",
-    database: "addressinfo",
-    port: 5432,
-    host: 'general.cironm3vqnjr.us-east-1.rds.amazonaws.com',
+    user: proConst.dbConst.user,
+    password: proConst.dbConst.password,
+    database: proConst.dbConst.database,
+    port: proConst.dbConst.port,
+    host: proConst.dbConst.host,
     ssl: false
 });
 

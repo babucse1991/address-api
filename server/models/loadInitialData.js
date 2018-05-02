@@ -1,11 +1,12 @@
 const pg = require('pg');
+const proConst = require('../constants');
 
 const client = new pg.Client({
-    user: "bbdev",
-    password: "9MM!zJ8oKSraOel",
-    database: "addressinfo",
-    port: 5432,
-    host: 'general.cironm3vqnjr.us-east-1.rds.amazonaws.com',
+    user: proConst.dbConst.user,
+    password: proConst.dbConst.password,
+    database: proConst.dbConst.database,
+    port: proConst.dbConst.port,
+    host: proConst.dbConst.host,
     ssl: false
 });
 
