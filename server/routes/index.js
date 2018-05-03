@@ -100,7 +100,7 @@ router.post('/api/v1/address', (req, res, next) => {
 });
 
 
-router.put('/api/v1/address', (req, res, next) => {
+router.post('/api/v1/update-address', (req, res, next) => {
   const results = [];
   const data = req.body;
 
@@ -139,7 +139,7 @@ router.post('/api/v1/address-search', (req, res, next) => {
     sql = sql +  'LOWER(LAST_NAME) = LOWER(\'' + data.lastName + '\')  AND ' ;
   }
   sql = sql.substr(0, (sql.length - 4));
-  sql = sql + 'ORDER BY adr.MODFY_TIME ASC;'
+  sql = sql + 'ORDER BY adr.MODFY_TIME DESC;'
 console.log(sql);
   client.connect( function (err, client, done) {
 
