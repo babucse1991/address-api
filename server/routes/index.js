@@ -26,7 +26,6 @@ router.get('/api/v1/todos', (req, res, next) => {
   client.connect( function (err, client, done) {
     // Handle connection errors
     if(err) {
-      done();
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
@@ -52,7 +51,6 @@ router.post('/api/v1/todos', (req, res, next) => {
   client.connect(function (err, client, done) {
     // Handle connection errors
     if(err) {
-      done();
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
@@ -80,7 +78,6 @@ router.post('/api/v1/address', (req, res, next) => {
     client.connect(function (err, client, done) {
 
       if(err) {
-        done();
         console.log(err);
         return res.status(500).json({success: false, data: err});
       }
@@ -107,7 +104,6 @@ router.post('/api/v1/update-address', (req, res, next) => {
     client.connect(function (err, client, done) {
 
       if(err) {
-        done();
         console.log(err);
         return res.status(500).json({success: false, data: err});
       }
@@ -138,13 +134,15 @@ router.post('/api/v1/address-search', (req, res, next) => {
   if ( data.lastName != null && data.lastName != '' ) {
     sql = sql +  'LOWER(LAST_NAME) = LOWER(\'' + data.lastName + '\')  AND ' ;
   }
+  if ( data.userName != null && data.userName != '' ) {
+    sql = sql +  'LOWER(adr.USER_NAME) = LOWER(\'' + data.userName + '\')  AND ' ;
+  }
   sql = sql.substr(0, (sql.length - 4));
   sql = sql + 'ORDER BY adr.MODFY_TIME DESC;'
 console.log(sql);
   client.connect( function (err, client, done) {
 
     if(err) {
-      done();
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
