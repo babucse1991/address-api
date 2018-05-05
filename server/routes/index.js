@@ -71,6 +71,70 @@ router.post('/api/v1/todos', (req, res, next) => {
   });
 });
 
+router.get('/api/v1/user-list', (req, res, next) => {
+  const results = [];
+  client.connect( function (err, client, done) {
+     if(err) {
+      console.log(err);
+      return res.status(500).json({success: false, data: err});
+    }
+    const query = client.query('SELECT USER_NAME AS userId, FIRST_NAME || \', \' ||LAST_NAME AS name  FROM ACCOUNT ORDER BY FIRST_NAME ASC;');
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    query.on('end', () => {
+      return res.json(results);
+    });
+    
+  });
+});
+
+router.get('/api/v1/refferal-list/:username', (req, res, next) => {
+  var username = req.params.username;
+  console.log('>>>>>>>>>>>>' + username);
+  const results = [];
+  client.connect( function (err, client, done) {
+     if(err) {
+      console.log(err);
+      return res.status(500).json({success: false, data: err});
+    }
+    const query = client.query('SELECT ac.USER_NAME AS userId, FIRST_NAME ||  \', \' || LAST_NAME AS name  FROM ' +
+      'ACCOUNT ac INNER JOIN REFER rf ON ac.USER_NAME = rf.REF_USER_NAME ' + 
+      'WHERE rf.USER_NAME = $1 ORDER  BY FIRST_NAME ASC;',
+    [username]);
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    query.on('end', () => {
+      return res.json(results);
+    });
+  });
+});
+
+router.post('/api/v1/new-referer', (req, res, next) => {
+  const results = [];
+  const data = req.body;
+
+    client.connect(function (err, client, done) {
+
+      if(err) {
+        console.log(err);
+        return res.status(500).json({success: false, data: err});
+      }
+
+      const query  = client.query( 'INSERT INTO REFER( USER_NAME, REF_USER_NAME ) ' +
+                      'values( $1, $2 )', [data.userId, data.newRefferId]);
+      query.on('error', function(err) {
+          console.log('Query error: ' + err);
+          return res.status(500).json({success: false, error: err});
+      });
+      query.on('end', () => {
+        return res.status(200).json({success: true, data: 'success'});
+      });
+      
+    });
+});
+
 router.post('/api/v1/address', (req, res, next) => {
   const results = [];
   const data = req.body;
@@ -126,8 +190,8 @@ router.post('/api/v1/address-search', (req, res, next) => {
   const results = [];
   const data = req.body;
   var sql =  'SELECT adr.* FROM ADDRESS adr '+
-  'INNER JOIN ACCOUNT act ON adr.USER_NAME = act.USER_NAME WHERE ';
-  
+  'INNER JOIN ACCOUNT act ON adr.USER_NAME = act.USER_NAME ';
+  sql =  sql + 'WHERE ';  
   if ( data.firstName != null && data.firstName != '' ) {
     sql =  sql + 'LOWER(FIRST_NAME) = LOWER(\'' + data.firstName + '\') AND ' ;
   }
@@ -159,6 +223,47 @@ console.log(sql);
   });
 });
 
+
+router.post('/api/v1/agent-address-search', (req, res, next) => {
+  const results = [];
+  const data = req.body;
+  var sql =  'SELECT DISTINCT adr.* FROM REFER rf ';
+  sql =  sql + 'INNER JOIN ADDRESS adr ON adr.USER_NAME = rf.REF_USER_NAME ';
+  sql =  sql + 'INNER JOIN ACCOUNT act ON  adr.USER_NAME = act.USER_NAME ';
+  sql =  sql + 'WHERE ';  
+  if ( data.firstName != null && data.firstName != '' ) {
+    sql =  sql + 'LOWER(FIRST_NAME) = LOWER(\'' + data.firstName + '\') AND ' ;
+  }
+  if ( data.lastName != null && data.lastName != '' ) {
+    sql = sql +  'LOWER(LAST_NAME) = LOWER(\'' + data.lastName + '\')  AND ' ;
+  }
+  if ( data.agentUserName != null && data.agentUserName != '' ) {
+    sql = sql +  'LOWER(rf.USER_NAME) = LOWER(\'' + data.agentUserName + '\')  AND ' ;
+  }
+  
+  sql = sql.substr(0, (sql.length - 4));
+  sql = sql + 'ORDER BY adr.MODFY_TIME DESC;'
+console.log(sql);
+  client.connect( function (err, client, done) {
+
+    if(err) {
+      console.log(err);
+      return res.status(500).json({success: false, data: err});
+    }
+    const query = client.query(sql);
+    
+    query.on('row', (row) => {
+      results.push(row);
+    });
+    
+    query.on('end', () => {
+      return res.json(results);
+    });
+
+  });
+});
+
+
 router.post('/api/v1/signup', (req, res, next) => {
   const results = [];
   const data = req.body;
@@ -173,7 +278,7 @@ router.post('/api/v1/signup', (req, res, next) => {
 
       const query  = client.query( 'INSERT INTO ACCOUNT( USER_NAME, FIRST_NAME, LAST_NAME, EMAIL, PHONE, ACCOUNT, PASSWORD, ISACTIVE, CRCT_TIME, MODFY_TIME) ' +
                         'values($1, $2, $3, $4, $5, $6, $7, true, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
-         [data.username, data.firstName, data.lastName, data.email, data.phone, data.account, data.password]);
+         [data.username, data.firstName, data.lastName, data.email, data.phone, data.domain, data.password]);
       
       query.on('error', function(err) {
           console.log('Query error: ' + err);
