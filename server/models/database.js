@@ -63,3 +63,37 @@ if (true) {
 
 }
 
+if (false) {
+	
+		client.connect();
+		const queryAdr = client.query(
+		  'CREATE TABLE ALIASE (' +
+			'ALIASE_ID SERIAL PRIMARY KEY,' +
+			'ADDR_ID INT,' +  
+			'ALI_FIRST_NAME VARCHAR(40),' +
+			'ALI_LAST_NAME VARCHAR(40),' +
+			'CRCT_TIME TIMESTAMP,' +
+			'MODFY_TIME TIMESTAMP,' +
+			'FOREIGN KEY (ADDR_ID) REFERENCES ADDRESS(ADDR_ID)' +
+		')');
+		queryAdr.on('end', () => { client.end(); });
+	
+	}
+
+	if (false) {
+		
+			client.connect();
+			const queryAdr = client.query(
+			  'CREATE TABLE THIRD_PARTY_ACCOUNT (' +
+				'ALIASE_ID INT,' +
+				'DOMAIN_NAME VARCHAR(40),' +  
+				'DOMAIN_USER_NAME VARCHAR(40),' +
+				'DOMAIN_PASSWORD VARCHAR(40),' +
+				'EMAIL VARCHAR(40),' +
+				'CRCT_TIME TIMESTAMP,' +
+				'MODFY_TIME TIMESTAMP,' +
+				'FOREIGN KEY (ALIASE_ID) REFERENCES ALIASE(ALIASE_ID)' +
+			')');
+			queryAdr.on('end', () => { client.end(); });
+		
+		}

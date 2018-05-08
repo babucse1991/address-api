@@ -3,17 +3,15 @@ const router = express.Router();
 const pg = require('pg');
 const path = require('path');
 const proConst = require('../constants');
-const connectionString = process.env.DATABASE_URL || 'postgres://msfrouexbqptiu:4ca612df8639d275cdc747154016be5d155b24972830ea0e2a8706c2c87c82bb@ec2-54-204-21-226.compute-1.amazonaws.com:5432/d1hnmf8ckni5ff';
-
-const client = new pg.Client({
-    user: proConst.dbConst.user,
-    password: proConst.dbConst.password,
-    database: proConst.dbConst.database,
-    port: proConst.dbConst.port,
-    host: proConst.dbConst.host,
-    ssl: false
-});
-
+const config = {
+  user: proConst.dbConst.user,
+  database: proConst.dbConst.database,
+  password: proConst.dbConst.password,
+  port: 5432, 
+  max: 10, 
+  idleTimeoutMillis: 30000 
+};
+var client = new pg.Pool(config);
 
 router.get('/', (req, res, next) => {
   res.sendFile(path.join(
@@ -75,6 +73,7 @@ router.get('/api/v1/user-list', (req, res, next) => {
   const results = [];
   client.connect( function (err, client, done) {
      if(err) {
+      done();
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
@@ -83,6 +82,7 @@ router.get('/api/v1/user-list', (req, res, next) => {
       results.push(row);
     });
     query.on('end', () => {
+      done();
       return res.json(results);
     });
     
@@ -95,6 +95,7 @@ router.get('/api/v1/refferal-list/:username', (req, res, next) => {
   const results = [];
   client.connect( function (err, client, done) {
      if(err) {
+      done();
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
@@ -106,6 +107,7 @@ router.get('/api/v1/refferal-list/:username', (req, res, next) => {
       results.push(row);
     });
     query.on('end', () => {
+      done();
       return res.json(results);
     });
   });
@@ -118,6 +120,7 @@ router.post('/api/v1/new-referer', (req, res, next) => {
     client.connect(function (err, client, done) {
 
       if(err) {
+        done();
         console.log(err);
         return res.status(500).json({success: false, data: err});
       }
@@ -129,6 +132,7 @@ router.post('/api/v1/new-referer', (req, res, next) => {
           return res.status(500).json({success: false, error: err});
       });
       query.on('end', () => {
+        done();
         return res.status(200).json({success: true, data: 'success'});
       });
       
@@ -142,6 +146,7 @@ router.post('/api/v1/address', (req, res, next) => {
     client.connect(function (err, client, done) {
 
       if(err) {
+        done();
         console.log(err);
         return res.status(500).json({success: false, data: err});
       }
@@ -154,6 +159,7 @@ router.post('/api/v1/address', (req, res, next) => {
           return res.status(500).json({success: false, error: err});
       });
       query.on('end', () => {
+        done();
         return res.status(200).json({success: true, data: 'success'});
       });
       
@@ -168,6 +174,7 @@ router.post('/api/v1/update-address', (req, res, next) => {
     client.connect(function (err, client, done) {
 
       if(err) {
+        done();
         console.log(err);
         return res.status(500).json({success: false, data: err});
       }
@@ -180,6 +187,7 @@ router.post('/api/v1/update-address', (req, res, next) => {
           return res.status(500).json({success: false, error: err});
       });
       query.on('end', () => {
+        done();
         return res.status(200).json({success: true, data: 'success'});
       });
       
@@ -207,6 +215,7 @@ console.log(sql);
   client.connect( function (err, client, done) {
 
     if(err) {
+      done();
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
@@ -217,6 +226,7 @@ console.log(sql);
     });
     
     query.on('end', () => {
+      done();
       return res.json(results);
     });
 
@@ -243,10 +253,11 @@ router.post('/api/v1/agent-address-search', (req, res, next) => {
   
   sql = sql.substr(0, (sql.length - 4));
   sql = sql + 'ORDER BY adr.MODFY_TIME DESC;'
-console.log(sql);
+  console.log(sql);
   client.connect( function (err, client, done) {
 
     if(err) {
+      done();
       console.log(err);
       return res.status(500).json({success: false, data: err});
     }
@@ -257,6 +268,7 @@ console.log(sql);
     });
     
     query.on('end', () => {
+      done();
       return res.json(results);
     });
 
@@ -285,6 +297,7 @@ router.post('/api/v1/signup', (req, res, next) => {
           return res.status(500).json({success: false, error: err});
       });
       query.on('end', () => {
+        done();
         return res.status(200).json({success: true, data: 'success'});
       });
       
@@ -310,6 +323,7 @@ router.post('/api/v1/login', (req, res, next) => {
     });
     
     query.on('end', () => {
+      done();
     	console.log('results.lenght  :' + results.length );
     	if ( results.length == 0 ) {
     		return res.status(500).json({success: false, data: 'invalid username'});
@@ -321,65 +335,6 @@ router.post('/api/v1/login', (req, res, next) => {
       
     });
 
-  });
-});
-
-router.put('/api/v1/todos/:todo_id', (req, res, next) => {
-  const results = [];
-  // Grab data from the URL parameters
-  const id = req.params.todo_id;
-  // Grab data from http request
-  const data = {text: req.body.text, complete: req.body.complete};
-  // Get a Postgres client from the connection pool
-  pg.connect(connectionString, (err, client, done) => {
-    // Handle connection errors
-    if(err) {
-      done();
-      console.log(err);
-      return res.status(500).json({success: false, data: err});
-    }
-    // SQL Query > Update Data
-    client.query('UPDATE items SET text=($1), complete=($2) WHERE id=($3)',
-    [data.text, data.complete, id]);
-    // SQL Query > Select Data
-    const query = client.query("SELECT * FROM items ORDER BY id ASC");
-    // Stream results back one row at a time
-    query.on('row', (row) => {
-      results.push(row);
-    });
-    // After all data is returned, close connection and return results
-    query.on('end', function() {
-      done();
-      return res.json(results);
-    });
-  });
-});
-
-router.delete('/api/v1/todos/:todo_id', (req, res, next) => {
-  const results = [];
-  // Grab data from the URL parameters
-  const id = req.params.todo_id;
-  // Get a Postgres client from the connection pool
-  pg.connect(connectionString, (err, client, done) => {
-    // Handle connection errors
-    if(err) {
-      done();
-      console.log(err);
-      return res.status(500).json({success: false, data: err});
-    }
-    // SQL Query > Delete Data
-    client.query('DELETE FROM items WHERE id=($1)', [id]);
-    // SQL Query > Select Data
-    var query = client.query('SELECT * FROM items ORDER BY id ASC');
-    // Stream results back one row at a time
-    query.on('row', (row) => {
-      results.push(row);
-    });
-    // After all data is returned, close connection and return results
-    query.on('end', () => {
-      done();
-      return res.json(results);
-    });
   });
 });
 
