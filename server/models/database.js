@@ -49,7 +49,7 @@ if (false) {
 	queryAdr.on('end', () => { client.end(); });
 }
 
-if (true) {
+if (false) {
 
 	client.connect();
 	const queryAdr = client.query(
@@ -80,11 +80,12 @@ if (false) {
 	
 	}
 
-	if (false) {
+	if (true) {
 		
 			client.connect();
 			const queryAdr = client.query(
-			  'CREATE TABLE THIRD_PARTY_ACCOUNT (' +
+				'CREATE TABLE THIRD_PARTY_ACCOUNT (' +
+				'ACCOUNT_ID SERIAL PRIMARY KEY,' +
 				'ALIASE_ID INT,' +
 				'DOMAIN_NAME VARCHAR(40),' +  
 				'DOMAIN_USER_NAME VARCHAR(40),' +

@@ -41,6 +41,33 @@ router.post('/api/v1/aliase', (req, res, next) => {
     });
 });
 
+router.post('/api/v1/update-aliase', (req, res, next) => {
+  const results = [];
+  const data = req.body;
+  console.log('alice id : '+ data.id);
+    client.connect(function (err, client, done) {
+
+      if(err) {
+        done();
+        console.log(err);
+        return res.status(500).json({success: false, data: err});
+      }
+
+      const query  = client.query( 'UPDATE ALIASE SET ALI_FIRST_NAME = $1, ALI_LAST_NAME = $2,  MODFY_TIME = CURRENT_TIMESTAMP  ' +
+                        ' WHERE ALIASE_ID = $3 ',
+         [data.aliFirstName, data.aliLastName, data.id]);
+      
+      query.on('error', function(err) {
+          console.log('Query error: ' + err);
+          return res.status(500).json({success: false, error: err});
+      });
+      query.on('end', () => {
+        done();
+        return res.status(200).json({success: true, data: 'success'});
+      });
+      
+    });
+});
 router.get('/api/v1/aliase/:addressId', (req, res, next) => {
   var addressId = req.params.addressId;
   console.log('>>>>>>>>>>>>' + addressId);
@@ -77,6 +104,34 @@ router.post('/api/v1/account', (req, res, next) => {
       const query  = client.query( 'INSERT INTO THIRD_PARTY_ACCOUNT( ALIASE_ID, DOMAIN_NAME, DOMAIN_USER_NAME, DOMAIN_PASSWORD, EMAIL, CRCT_TIME, MODFY_TIME ) ' +
                         'values($1, $2, $3, $4, $5, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP )',
          [data.aliceId, data.domain, data.username, data.password, data.email ]);
+      
+      query.on('error', function(err) {
+          console.log('Query error: ' + err);
+          return res.status(500).json({success: false, error: err});
+      });
+      query.on('end', () => {
+        done();
+        return res.status(200).json({success: true, data: 'success'});
+      });
+      
+    });
+});
+
+router.post('/api/v1/update-account', (req, res, next) => {
+  const results = [];
+  const data = req.body;
+
+    client.connect(function (err, client, done) {
+
+      if(err) {
+        done();
+        console.log(err);
+        return res.status(500).json({success: false, data: err});
+      }
+
+      const query  = client.query( 'UPDATE THIRD_PARTY_ACCOUNT SET DOMAIN_NAME = $1, DOMAIN_USER_NAME = $2, DOMAIN_PASSWORD = $3, EMAIL = $4, MODFY_TIME = CURRENT_TIMESTAMP ' +
+                        'WHERE ACCOUNT_ID = $5 ',
+         [data.domain, data.username, data.password, data.email, data.id ]);
       
       query.on('error', function(err) {
           console.log('Query error: ' + err);
